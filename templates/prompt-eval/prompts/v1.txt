@@ -1,0 +1,7 @@
+Classify the request into one of: billing, security, support, sales, other.
+
+Return JSON:
+{"category":"...", "reason":"..."}
+
+Request:
+{{input}}

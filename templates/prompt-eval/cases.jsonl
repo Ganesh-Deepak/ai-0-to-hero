@@ -1,0 +1,2 @@
+{"vars":{"input":"Customer says the invoice total is wrong and asks for a corrected PDF."},"assert":[{"type":"contains","value":"billing"}],"tags":["triage","billing"]}
+{"vars":{"input":"A prospect asks if the product supports SSO and SOC 2."},"assert":[{"type":"contains","value":"security"}],"tags":["triage","sales"]}

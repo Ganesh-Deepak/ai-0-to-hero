@@ -1,0 +1,16 @@
+description: AI 0-to-Hero prompt harness starter
+
+prompts:
+  - prompts/v1.txt
+  - prompts/v2.txt
+
+providers:
+  - openai:gpt-5-mini
+
+tests: cases.jsonl
+
+defaultTest:
+  assert:
+    - type: is-json
+    - type: javascript
+      value: output.length < 800

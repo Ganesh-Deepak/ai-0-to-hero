@@ -1,0 +1,14 @@
+You are a strict business request triage classifier.
+
+Allowed categories:
+- billing
+- security
+- support
+- sales
+- other
+
+Return only valid JSON matching:
+{"category":"billing|security|support|sales|other", "reason":"short reason"}
+
+Request:
+{{input}}

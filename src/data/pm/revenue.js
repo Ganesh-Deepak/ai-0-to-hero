@@ -1,0 +1,96 @@
+// PM "Revenue" tab is repurposed as Career Specializations.
+// Same data shape as the AI track's revenue niches — just PM-flavored.
+
+export const revenueNiches = [
+  {
+    id: "apm-faang",
+    label: "APM at FAANG / Tier-1",
+    emoji: "🎯",
+    pain: "Opaque rubrics, narrow timing windows, intense case-interview gauntlets.",
+    offer: "Polished portfolio + practiced cases + the right APM List filter applied at the right week.",
+    firstProject: "Apply to 5 APM programs aligned to your eligibility. Build the portfolio site referenced in your apps.",
+    price: "First-year TC: $180k–$240k (US, FAANG bands)",
+    proofNeeded: "Public portfolio with 2-3 case studies + a recorded mock case interview you'd send to a friend.",
+    relatedLabs: ["pm-lab-portfolio", "pm-lab-discovery-interviews", "pm-lab-real-prd"],
+    relatedTopics: ["career", "discovery", "execution"],
+  },
+  {
+    id: "b2b-saas",
+    label: "B2B SaaS PM",
+    emoji: "💼",
+    pain: "Stakeholder-heavy environments, long sales cycles, customers who refuse to be interviewed.",
+    offer: "Customer-research stamina + executive-comms craft + roadmaps you can defend in front of sales.",
+    firstProject: "Run a discovery cycle with 5 customers from a real B2B product. Ship the synthesis publicly.",
+    price: "L4-L5 IC range: $150k–$220k base + equity",
+    proofNeeded: "B2B-flavored case study showing roadmap defense, sales-marketing partnership, and a measurable outcome.",
+    relatedLabs: ["pm-lab-discovery-interviews", "pm-lab-now-next-later", "pm-lab-real-prd"],
+    relatedTopics: ["discovery", "prioritization", "execution"],
+  },
+  {
+    id: "growth-pm",
+    label: "Growth PM",
+    emoji: "📈",
+    pain: "Teams treat growth as 'tactics'. Your job is to install loops, not paint funnels.",
+    offer: "Growth model + experiment plan + retention diagnosis on real or sample data.",
+    firstProject: "Diagnose retention on a real product. Build the loop diagram. Specify two experiments.",
+    price: "L4-L6 range: $160k–$280k TC; specialized roles trend higher",
+    proofNeeded: "A loop diagram + retention curve + one shipped experiment write-up (win or kill).",
+    relatedLabs: ["pm-lab-funnel-retention", "pm-lab-experiment-plan", "pm-lab-now-next-later"],
+    relatedTopics: ["metrics", "growth", "prioritization"],
+  },
+  {
+    id: "ai-pm",
+    label: "AI Product Manager",
+    emoji: "✨",
+    pain: "Most PMs writing AI specs skip evals, model risk, and monitoring. The role is being defined right now.",
+    offer: "Eval-first AI specs + model risk literacy + the ability to argue with engineers about prompts and tools.",
+    firstProject: "Ship a public AI feature spec (yours or a teardown of a real product) with a 30-case eval set.",
+    price: "AI PM premium: $200k–$320k TC; founding AI PM at startups higher",
+    proofNeeded: "An AI spec + eval CSV + model risk doc anyone can read in 10 minutes.",
+    relatedLabs: ["pm-lab-ai-feature-spec", "pm-lab-real-prd", "pm-lab-experiment-plan"],
+    relatedTopics: ["ai-pm", "execution", "metrics"],
+  },
+  {
+    id: "platform-pm",
+    label: "Platform / Infra PM",
+    emoji: "🛠️",
+    pain: "Internal customers. Long-horizon bets. The metrics that matter are 6-quarter lagging.",
+    offer: "Strategic narrative + measurable platform metrics + working with engineering on durable abstractions.",
+    firstProject: "Pick an internal-platform product. Write the strategy + roadmap + a three-tier metric (adoption, satisfaction, leverage).",
+    price: "L5-L7 range: $200k–$400k TC at large companies",
+    proofNeeded: "A platform strategy doc + adoption/satisfaction metric framework + one case study of internal-customer discovery.",
+    relatedLabs: ["pm-lab-strategy-narrative", "pm-lab-discovery-interviews", "pm-lab-now-next-later"],
+    relatedTopics: ["strategy", "metrics", "execution"],
+  },
+  {
+    id: "founder-zero-one",
+    label: "0→1 / Founder PM",
+    emoji: "🚀",
+    pain: "No one knows what 'good' looks like. The market signal is weak and noisy. Most days feel like flailing.",
+    offer: "Speed of discovery + sharp positioning narrative + a portfolio of small bets on the same hypothesis.",
+    firstProject: "Pick a problem. Run 10 customer interviews. Write the strategic narrative. Build a v1 prototype.",
+    price: "Founder pay: $0–$100k cash + meaningful equity. Real return is 5-10y.",
+    proofNeeded: "Public hypothesis doc + interview log + a working prototype + 10 cold messages sent.",
+    relatedLabs: ["pm-lab-discovery-interviews", "pm-lab-strategy-narrative", "pm-lab-ai-feature-spec"],
+    relatedTopics: ["discovery", "strategy", "ai-pm"],
+  },
+];
+
+export const revenueSteps = [
+  {
+    title: "Portfolio",
+    body: "Three case studies. Each readable in 4 minutes. The first 5 seconds determine the recruiter screen.",
+  },
+  {
+    title: "Practice",
+    body: "Mock interviews on camera. Watch them back. The cringe is the calibration.",
+  },
+  {
+    title: "Targeting",
+    body: "Pick 5-10 specific companies + roles. Generic applications convert <1%. Targeted applications convert >10%.",
+  },
+  {
+    title: "Negotiation",
+    body: "Levels.fyi + a calm 24-hour window after the offer. Walk into every call knowing the floor.",
+  },
+];
