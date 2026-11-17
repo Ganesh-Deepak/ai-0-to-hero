@@ -6,4 +6,4 @@ Use this starter for the Prompt Harness lab.
 npx promptfoo@latest eval -c promptfooconfig.yaml
 ```
 
-Replace the examples in `cases.jsonl` with real anonymized inputs before trusting any score.
+Set `ANTHROPIC_API_KEY` (or swap the provider for any model you use). Replace the examples in `cases.jsonl` with real anonymized inputs before trusting any score.
