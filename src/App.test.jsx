@@ -36,18 +36,29 @@ describe("App", () => {
     render(<App />);
     go("#/ai/library");
     fireEvent.change(screen.getByRole("searchbox", { name: "Search the library" }), { target: { value: "pgvector" } });
-    expect(screen.getByText("1 of 67 shown")).toBeInTheDocument();
+    expect(screen.getByText("1 of 67 works shown")).toBeInTheDocument();
   });
 
   it("tracks lab steps and keeps progress separate per path", () => {
     render(<App />);
     go("#/ai/labs/lab-rag");
     fireEvent.click(screen.getByRole("button", { name: "Mark step 1 as done" }));
-    expect(screen.getByText("1/6 done")).toBeInTheDocument();
+    expect(screen.getByText("1 of 6 done")).toBeInTheDocument();
     go("#/pm/labs");
-    expect(screen.getByRole("heading", { level: 1, name: "Labs" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "The Studio" })).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem("ai0.v4.ai")).steps).toEqual({ "lab-rag": [0] });
     expect(localStorage.getItem("ai0.v4.pm")).not.toContain("lab-rag");
+  });
+
+  it("follows the clock for light, and can be pinned", () => {
+    render(<App />);
+    const scheme = document.documentElement.dataset.scheme;
+    expect(["light", "dark"]).toContain(scheme);
+    fireEvent.click(screen.getByRole("button", { name: /Change light/ })); // auto -> day
+    expect(document.documentElement.dataset.scheme).toBe("light");
+    fireEvent.click(screen.getByRole("button", { name: /Change light/ })); // day -> night
+    expect(document.documentElement.dataset.scheme).toBe("dark");
+    expect(JSON.parse(localStorage.getItem("ai0.light"))).toBe("night");
   });
 
   it("migrates v3 progress on first load", () => {

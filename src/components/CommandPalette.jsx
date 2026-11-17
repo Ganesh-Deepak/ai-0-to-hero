@@ -2,7 +2,7 @@ import React from "react";
 import { Search } from "lucide-react";
 
 // Accessible command palette: a modal dialog with a combobox + listbox.
-export default function CommandPalette({ open, onClose, path, paths, progress, go, onSwitchPath, onToggleTheme, data }) {
+export default function CommandPalette({ open, onClose, path, paths, progress, go, onSwitchPath, onSetLight, data }) {
   const [query, setQuery] = React.useState("");
   const [active, setActive] = React.useState(0);
   const inputRef = React.useRef(null);
@@ -12,17 +12,19 @@ export default function CommandPalette({ open, onClose, path, paths, progress, g
   const items = React.useMemo(() => {
     const done = new Set(progress.done);
     const pages = [
-      ["plan", "Plan"],
+      ["plan", "Journey"],
       ["library", "Library"],
-      ["labs", "Labs"],
-      ["reference", "Reference"],
+      ["labs", "Studio (labs)"],
+      ["reference", "Field guide"],
       ["offers", path.offersLabel],
     ].map(([id, label]) => ({ id: `go-${id}`, group: "Go to", label, run: () => go(id) }));
     const commands = [
       ...paths
         .filter((p) => p.id !== path.id)
         .map((p) => ({ id: `path-${p.id}`, group: "Commands", label: `Switch to ${p.label}`, run: () => onSwitchPath(p.id) })),
-      { id: "theme", group: "Commands", label: "Toggle dark mode", run: onToggleTheme },
+      { id: "light-auto", group: "Commands", label: "Light: follow the clock", run: () => onSetLight("auto") },
+      { id: "light-day", group: "Commands", label: "Light: always day", run: () => onSetLight("day") },
+      { id: "light-night", group: "Commands", label: "Light: always night", run: () => onSetLight("night") },
       { id: "export-json", group: "Commands", label: "Export progress (JSON)", run: data.exportJSON },
       { id: "export-md", group: "Commands", label: "Export progress (Markdown)", run: data.exportMarkdown },
       { id: "import", group: "Commands", label: "Import progress", run: data.importJSON },
@@ -50,7 +52,7 @@ export default function CommandPalette({ open, onClose, path, paths, progress, g
       run: () => go("library", null, { topic: t.id }),
     }));
     return [...pages, ...labs, ...topics, ...commands, ...sources];
-  }, [path, paths, progress.done, go, onSwitchPath, onToggleTheme, data]);
+  }, [path, paths, progress.done, go, onSwitchPath, onSetLight, data]);
 
   const q = query.trim().toLowerCase();
   const results = q
@@ -114,7 +116,7 @@ export default function CommandPalette({ open, onClose, path, paths, progress, g
             aria-controls="palette-list"
             aria-activedescendant={results[active] ? `pal-${results[active].id}` : undefined}
             aria-autocomplete="list"
-            placeholder="Search sources, labs, commands…"
+            placeholder="Search the library, studies, or a command…"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);

@@ -3,7 +3,6 @@ import React from "react";
 import { paths, getPath, pathById, DEFAULT_PATH_ID } from "./data/paths";
 import { buildHash, navigate, parseHash, useHash } from "./lib/router";
 import { readJSON, writeJSON } from "./lib/storage";
-import { formatDate } from "./lib/format";
 import {
   exportPayload,
   migrateLegacy,
@@ -12,17 +11,19 @@ import {
   sanitizeProgress,
   storageKey,
 } from "./lib/progress";
+import { MOODS, resolveMood } from "./art/moods";
 
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import CommandPalette from "./components/CommandPalette";
-import Plan from "./pages/Plan";
+import Journey from "./pages/Journey";
 import Library from "./pages/Library";
-import Labs from "./pages/Labs";
-import Reference from "./pages/Reference";
-import Offers from "./pages/Offers";
+import Studio from "./pages/Studio";
+import FieldGuide from "./pages/FieldGuide";
+import Market from "./pages/Market";
 
 const VALID_PATHS = new Set(paths.map((p) => p.id));
-const THEMES = ["system", "light", "dark"];
+const LIGHTS = ["auto", "day", "night"];
 
 function loadProgress(path) {
   const stored = readJSON(storageKey(path.id));
@@ -51,26 +52,30 @@ function useProgress(path) {
   return [current.value, update];
 }
 
-function useTheme() {
-  const [theme, setTheme] = React.useState(() => {
-    const t = readJSON("ai0.theme", "system");
-    return THEMES.includes(t) ? t : "system";
-  });
+function initialLight() {
+  const stored = readJSON("ai0.light");
+  if (LIGHTS.includes(stored)) return stored;
+  const legacy = readJSON("ai0.theme");
+  return legacy === "dark" ? "night" : legacy === "light" ? "day" : "auto";
+}
+
+// The light follows the clock unless pinned to day or night.
+function useLight() {
+  const [light, setLight] = React.useState(initialLight);
+  const [now, setNow] = React.useState(() => new Date());
+  React.useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const mood = resolveMood(light, now);
   React.useEffect(() => {
     const root = document.documentElement;
-    if (theme === "system") delete root.dataset.theme;
-    else root.dataset.theme = theme;
-    writeJSON("ai0.theme", theme);
-  }, [theme]);
-  const toggle = React.useCallback(() => {
-    setTheme((t) => {
-      const dark =
-        t === "dark" ||
-        (t === "system" && window.matchMedia?.("(prefers-color-scheme: dark)").matches);
-      return dark ? "light" : "dark";
-    });
-  }, []);
-  return [theme, toggle];
+    root.dataset.scheme = MOODS[mood].scheme;
+    root.dataset.mood = mood;
+    writeJSON("ai0.light", light);
+  }, [mood, light]);
+  const cycle = React.useCallback(() => setLight((l) => LIGHTS[(LIGHTS.indexOf(l) + 1) % LIGHTS.length]), []);
+  return { light, mood, cycle, setLight };
 }
 
 const toggleIn = (list, id) => (list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
@@ -91,18 +96,16 @@ export default function App() {
   const route = parseHash(hash, VALID_PATHS, fallbackPath);
   const path = pathById[route.pathId];
   const [progress, update] = useProgress(path);
-  const [theme, toggleTheme] = useTheme();
+  const sky = useLight();
   const [paletteOpen, setPaletteOpen] = React.useState(false);
   const [notice, setNotice] = React.useState(null);
 
-  // Canonicalise the URL and remember the last path.
   const canonical = buildHash(route);
   React.useEffect(() => {
     if (hash !== canonical) navigate(canonical, { replace: true });
     writeJSON("ai0.activePath", route.pathId);
   }, [hash, canonical, route.pathId]);
 
-  // Reset scroll when the page changes.
   const pageKey = `${route.pathId}/${route.section}/${route.id ?? ""}`;
   React.useEffect(() => {
     window.scrollTo(0, 0);
@@ -129,7 +132,7 @@ export default function App() {
     (section, id = null, query = {}) => navigate(buildHash({ pathId: path.id, section, id, query })),
     [path.id]
   );
-  const switchPath = (pathId) => navigate(buildHash({ pathId, section: route.section === "labs" ? "labs" : route.section }));
+  const switchPath = (pathId) => navigate(buildHash({ pathId, section: route.section }));
 
   const actions = React.useMemo(
     () => ({
@@ -180,13 +183,13 @@ export default function App() {
       reset() {
         if (!window.confirm(`Reset all ${path.label} progress in this browser? This can't be undone.`)) return;
         update(() => ({}));
-        setNotice("Progress reset.");
+        setNotice("Progress reset. A fresh canvas.");
       },
     }),
     [path, progress, update, setNotice]
   );
 
-  const pageProps = { path, progress, actions, go, route };
+  const pageProps = { path, progress, actions, go, route, mood: sky.mood };
 
   return (
     <>
@@ -198,22 +201,19 @@ export default function App() {
         go={go}
         onSwitchPath={switchPath}
         onOpenPalette={() => setPaletteOpen(true)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
+        light={sky.light}
+        mood={sky.mood}
+        onCycleLight={sky.cycle}
+        solid={route.section === "labs" && Boolean(route.id)}
       />
       <main id="main" className="main" tabIndex={-1}>
-        {route.section === "plan" && <Plan key={path.id} {...pageProps} data={data} />}
+        {route.section === "plan" && <Journey key={path.id} {...pageProps} data={data} />}
         {route.section === "library" && <Library key={path.id} {...pageProps} />}
-        {route.section === "labs" && <Labs key={path.id} {...pageProps} />}
-        {route.section === "reference" && <Reference key={path.id} {...pageProps} />}
-        {route.section === "offers" && <Offers key={path.id} {...pageProps} />}
+        {route.section === "labs" && <Studio key={path.id} {...pageProps} />}
+        {route.section === "reference" && <FieldGuide key={path.id} {...pageProps} />}
+        {route.section === "offers" && <Market key={path.id} {...pageProps} />}
       </main>
-      <footer className="site-footer">
-        <div className="container footer-inner">
-          <span>Content reviewed {formatDate(path.reviewed)}.</span>
-          <span>Progress is saved in this browser only.</span>
-        </div>
-      </footer>
+      <Footer path={path} mood={sky.mood} />
       <CommandPalette
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
@@ -222,7 +222,7 @@ export default function App() {
         progress={progress}
         go={go}
         onSwitchPath={switchPath}
-        onToggleTheme={toggleTheme}
+        onSetLight={sky.setLight}
         data={data}
       />
       <div className="toast-region" role="status" aria-live="polite">

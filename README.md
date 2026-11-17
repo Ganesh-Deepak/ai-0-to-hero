@@ -7,6 +7,8 @@ A personal learning workbench with two tracks:
 
 Each track has a paced plan, a short curated library, labs with a clear finish line, cheat sheets, and a path to paid work or a role. Content was last reviewed on **16 Nov 2026**.
 
+The site is an atelier. Every page opens on an original landscape painted in your browser from a fixed seed: mountains for AI, coast for PM. The light follows your clock through dawn, day, dusk and night, and you can pin it to day or night. A road crosses the Journey painting with one waypoint per phase, and it is painted gold as you progress. In the Studio each lab is a framed canvas that starts as a pencil sketch and fills with colour as you complete its steps.
+
 | | AI | PM |
 | --- | --- | --- |
 | Sources | 67 (19 core) | 41 (12 core) |
@@ -15,13 +17,15 @@ Each track has a paced plan, a short curated library, labs with a clear finish l
 
 ## Sections
 
-- **Plan**: choose a goal and weekly hours; the phases resize to fit. Shows what to read and build next, plus what changed in 2026.
-- **Library**: search and filter by topic or status (core, unread, saved).
-- **Labs**: step checklists with code, pitfalls, required reading and a "shipped" state.
-- **Reference**: agent patterns, RAG failure modes, the eval playbook (or the PM equivalents).
-- **Offers / Career**: niches with pain, offer, pricing or compensation, and the labs that prove it.
+- **Journey**: choose a goal and weekly hours; the phases ("chapters") resize to fit. Shows what to read and build today, plus dispatches on what changed in 2026.
+- **Library**: a catalogue by chapter, with search and filters (core, unread, saved).
+- **Studio**: the labs as a gallery of canvases; each has steps with code, a margin note and readings.
+- **Field guide**: agent patterns, RAG failure modes, the eval playbook (or the PM equivalents).
+- **Offers / Career**: four stages, plus niches with pain, offer, pricing or compensation, and the labs that prove it.
 
-Progress is stored in the browser (`localStorage`, key `ai0.v4.<path>`). Earlier v3 progress is migrated automatically. You can export to JSON or Markdown and import it back from the Plan page or the command palette (⌘K / Ctrl K).
+Progress is stored in the browser (`localStorage`, key `ai0.v4.<path>`). Earlier v3 progress is migrated automatically. You can export to JSON or Markdown and import it back from the Journey page or the command palette (⌘K / Ctrl K).
+
+Each painting layer is rendered once to an image, so the drifting clouds and other motion stay smooth. Motion is turned off for anyone who prefers reduced motion.
 
 ## Develop
 
@@ -42,8 +46,9 @@ Requires Node `^20.19.0 || >=22.12.0`.
 ```
 src/data/ai.js, pm.js   all content for a track (meta, topics, phases, resources, labs, reference, offers)
 src/data/paths.js       registry and lookup indexes
+src/art/                the painter: seeded scenes, time-of-day palettes, SVG layers
 src/lib/                progress model, plan math, hash router, storage
-src/pages/              Plan, Library, Labs, Reference, Offers
+src/pages/              Journey, Library, Studio, FieldGuide, Market
 src/components/         header, command palette, shared UI
 templates/              prompt-eval, rag-eval and AI-BOM starters
 scripts/                data validator and link checker

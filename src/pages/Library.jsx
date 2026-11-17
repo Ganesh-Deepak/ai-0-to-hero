@@ -1,16 +1,18 @@
 import React from "react";
 import { Search, X } from "lucide-react";
-import { ResourceRow, PageHead } from "../components/ui";
+import { Entry, PageBand} from "../components/ui";
+import { roman } from "../lib/format";
+import { terrainFor } from "../art/plates";
 import { buildHash, navigate } from "../lib/router";
 
 const FILTERS = [
-  ["all", "All"],
+  ["all", "Everything"],
   ["must", "Core"],
   ["unread", "Unread"],
   ["saved", "Saved"],
 ];
 
-export default function Library({ path, progress, actions, route }) {
+export default function Library({ path, progress, actions, route, mood }) {
   const topic = path.topicById[route.query.topic] ? route.query.topic : "all";
   const filter = FILTERS.some(([id]) => id === route.query.filter) ? route.query.filter : "all";
   const [query, setQuery] = React.useState(route.query.q || "");
@@ -63,120 +65,124 @@ export default function Library({ path, progress, actions, route }) {
   });
 
   const groups = path.topics
-    .map((t) => ({ topic: t, items: results.filter((r) => r.topic === t.id).sort((a, b) => Number(b.must) - Number(a.must)) }))
+    .map((t, i) => ({ topic: t, n: i + 1, items: results.filter((r) => r.topic === t.id).sort((a, b) => Number(b.must) - Number(a.must)) }))
     .filter((g) => g.items.length);
-
   const readCount = path.resources.filter((r) => done.has(r.id)).length;
 
   return (
-    <div className="container page">
-      <PageHead
-        title="Library"
-        lede={`${path.resources.length} sources, chosen because leaving any one out would leave a gap. Core items come first in each topic. ${readCount} read so far.`}
+    <div>
+      <PageBand
+        seed={`${path.id}:library`}
+        terrain={terrainFor(path.id)}
+        mood={mood}
+        kicker={`${readCount} of ${path.resources.length} read`}
+        title="The Library"
+        lede="A short shelf, chosen so that leaving out any one would leave a gap. Core works come first in each chapter."
       />
 
-      <div className="toolbar" role="search">
-        <div className="search-field">
-          <Search size={16} aria-hidden="true" />
-          <input
-            ref={searchRef}
-            type="search"
-            placeholder="Search titles, authors, notes"
-            aria-label="Search the library"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setParams({ q: e.target.value });
-            }}
-          />
-          {query ? (
+      <div className="page">
+        <div className="catalogue-tools" role="search">
+          <div className="quill-search">
+            <Search size={18} aria-hidden="true" />
+            <input
+              ref={searchRef}
+              type="search"
+              placeholder="Search by title, author or idea"
+              aria-label="Search the library"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setParams({ q: e.target.value });
+              }}
+            />
+            {query ? (
+              <button
+                type="button"
+                className="tool"
+                aria-label="Clear search"
+                onClick={() => {
+                  setQuery("");
+                  setParams({ q: "" });
+                  searchRef.current?.focus();
+                }}
+              >
+                <X size={15} aria-hidden="true" />
+              </button>
+            ) : (
+              <kbd aria-hidden="true">/</kbd>
+            )}
+          </div>
+          <div className="pills" role="radiogroup" aria-label="Show">
+            {FILTERS.map(([id, label]) => (
+              <button key={id} type="button" role="radio" aria-checked={filter === id} onClick={() => setParams({ filter: id })}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <nav className="contents" aria-label="Chapters">
+          <div role="radiogroup" aria-label="Chapter">
+            <button type="button" role="radio" aria-checked={topic === "all"} onClick={() => setParams({ topic: "all" })}>
+              <span>All chapters</span>
+              <span className="contents-count">{path.resources.length}</span>
+            </button>
+            {path.topics.map((t, i) => (
+              <button key={t.id} type="button" role="radio" aria-checked={topic === t.id} onClick={() => setParams({ topic: t.id })} title={t.blurb}>
+                <span>
+                  <span className="contents-num">{roman(i + 1)}</span> {t.name}
+                </span>
+                <span className="contents-count">{counts[t.id] || 0}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <p className="result-count" aria-live="polite">
+          {results.length === path.resources.length ? `All ${results.length} works` : `${results.length} of ${path.resources.length} works shown`}
+        </p>
+
+        {groups.length === 0 ? (
+          <div className="sheet empty">
+            <h2 className="sheet-title">Nothing on this shelf.</h2>
+            <p>{filter === "saved" ? "Tap the ribbon on any work to save it here." : "Try another word, or clear the filters."}</p>
             <button
               type="button"
-              className="icon-button small"
-              aria-label="Clear search"
+              className="btn"
               onClick={() => {
                 setQuery("");
-                setParams({ q: "" });
-                searchRef.current?.focus();
+                setParams({ topic: "all", filter: "all", q: "" });
               }}
             >
-              <X size={14} aria-hidden="true" />
+              Clear filters
             </button>
-          ) : (
-            <kbd aria-hidden="true">/</kbd>
-          )}
-        </div>
-        <div className="segmented" role="radiogroup" aria-label="Status filter">
-          {FILTERS.map(([id, label]) => (
-            <button key={id} type="button" role="radio" aria-checked={filter === id} onClick={() => setParams({ filter: id })}>
-              {label}
-            </button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          groups.map((g) => (
+            <section key={g.topic.id} className="shelf" aria-labelledby={`t-${g.topic.id}`}>
+              <header className="shelf-head">
+                <span className="shelf-num" aria-hidden="true">
+                  {roman(g.n)}
+                </span>
+                <h2 id={`t-${g.topic.id}`}>{g.topic.name}</h2>
+                <p>{g.topic.blurb}</p>
+              </header>
+              <ul className="entries">
+                {g.items.map((r) => (
+                  <Entry
+                    key={r.id}
+                    resource={r}
+                    done={done.has(r.id)}
+                    saved={saved.has(r.id)}
+                    onToggleRead={actions.toggleRead}
+                    onToggleSaved={actions.toggleSaved}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
       </div>
-
-      <div className="chips" role="radiogroup" aria-label="Topic">
-        <button type="button" role="radio" className="chip" aria-checked={topic === "all"} onClick={() => setParams({ topic: "all" })}>
-          All <span className="count">{path.resources.length}</span>
-        </button>
-        {path.topics.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="radio"
-            className="chip"
-            aria-checked={topic === t.id}
-            onClick={() => setParams({ topic: t.id })}
-            title={t.blurb}
-          >
-            {t.name} <span className="count">{counts[t.id] || 0}</span>
-          </button>
-        ))}
-      </div>
-
-      <p className="result-count muted" aria-live="polite">
-        {results.length === path.resources.length ? `Showing all ${results.length}` : `${results.length} of ${path.resources.length} shown`}
-      </p>
-
-      {groups.length === 0 ? (
-        <div className="panel empty">
-          <h3>Nothing matches.</h3>
-          <p className="muted">
-            {filter === "saved" ? "Bookmark a source to add it to your saved list." : "Try a different word or clear the filters."}
-          </p>
-          <button
-            type="button"
-            className="button"
-            onClick={() => {
-              setQuery("");
-              setParams({ topic: "all", filter: "all", q: "" });
-            }}
-          >
-            Clear filters
-          </button>
-        </div>
-      ) : (
-        groups.map((g) => (
-          <section key={g.topic.id} className="topic-group" aria-labelledby={`t-${g.topic.id}`}>
-            <div className="topic-head">
-              <h2 id={`t-${g.topic.id}`}>{g.topic.name}</h2>
-              <p className="muted">{g.topic.blurb}</p>
-            </div>
-            <ul className="resource-list">
-              {g.items.map((r) => (
-                <ResourceRow
-                  key={r.id}
-                  resource={r}
-                  done={done.has(r.id)}
-                  saved={saved.has(r.id)}
-                  onToggleRead={actions.toggleRead}
-                  onToggleSaved={actions.toggleSaved}
-                />
-              ))}
-            </ul>
-          </section>
-        ))
-      )}
     </div>
   );
 }
