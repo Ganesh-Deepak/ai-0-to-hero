@@ -1,9 +1,8 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import "@fontsource-variable/fraunces/full.css";
-import "@fontsource-variable/fraunces/full-italic.css";
+// Fallback only: the site is set in Sitka, which Windows provides. This
+// face is downloaded only on systems where Sitka is not installed.
 import "@fontsource-variable/newsreader/opsz.css";
-import "@fontsource-variable/newsreader/opsz-italic.css";
 import App from "./App";
 import "./styles.css";
 

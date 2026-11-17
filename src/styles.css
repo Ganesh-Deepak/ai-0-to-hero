@@ -5,8 +5,12 @@
    ───────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
-  --text: "Newsreader Variable", "Iowan Old Style", Georgia, serif;
+  /* Sitka, in its optical sizes (installed with Windows). Other systems
+     fall back to Newsreader, which is only downloaded when Sitka is missing. */
+  --display: "Sitka Display", "Sitka Heading", "Sitka", "Newsreader Variable", Georgia, serif;
+  --heading: "Sitka Heading", "Sitka Subheading", "Sitka", "Newsreader Variable", Georgia, serif;
+  --text: "Sitka Text", "Sitka", "Newsreader Variable", Georgia, serif;
+  --small: "Sitka Small", "Sitka Text", "Sitka", "Newsreader Variable", Georgia, serif;
 
   --paper: #f3ecdf;
   --paper-2: #ebe2d0;
@@ -75,8 +79,18 @@ html {
   background: var(--paper);
 }
 
+em,
+i,
+cite,
+address,
+dfn,
+var {
+  font-style: normal;
+}
+
 body {
   margin: 0;
+  font-synthesis: none;
   min-height: 100vh;
   background-color: var(--paper);
   background-image: var(--grain), radial-gradient(ellipse 120% 80% at 50% 0%, color-mix(in srgb, var(--card) 70%, transparent), transparent 70%);
@@ -119,9 +133,8 @@ ul {
 h1,
 h2,
 h3 {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-weight: 380;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
   letter-spacing: -0.01em;
   line-height: 1.15;
   text-wrap: balance;
@@ -150,9 +163,8 @@ button {
 }
 
 kbd {
-  font-family: var(--text);
+  font-family: var(--small);
   font-size: 12px;
-  font-style: italic;
   line-height: 1;
   padding: 3px 6px;
   border: 1px solid currentColor;
@@ -213,7 +225,7 @@ kbd {
 }
 
 .kicker {
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -227,8 +239,7 @@ kbd {
 }
 
 .try-label {
-  font-family: var(--display);
-  font-style: italic;
+  font-family: var(--small);
   font-weight: 500;
   color: var(--sienna);
   margin-right: 4px;
@@ -240,7 +251,7 @@ kbd {
   padding: 1px 7px 0;
   border: 1px solid currentColor;
   border-radius: 3px;
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 11px;
   font-weight: 600;
   font-style: normal;
@@ -406,6 +417,7 @@ kbd {
 }
 
 .hero-copy h1 {
+  font-family: var(--display);
   max-width: 13ch;
   margin-top: 14px;
   font-size: clamp(44px, 6.6vw, 92px);
@@ -427,6 +439,7 @@ kbd {
 }
 
 .band-copy h1 {
+  font-family: var(--display);
   margin-top: 8px;
   font-size: clamp(40px, 5.2vw, 68px);
   font-weight: 340;
@@ -497,9 +510,8 @@ kbd {
   border-radius: 3px;
   background: color-mix(in srgb, #fbf6ea 88%, transparent);
   color: #2a241d;
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 14px;
-  font-style: italic;
   white-space: nowrap;
   box-shadow: 0 4px 14px -6px rgba(0, 0, 0, 0.4);
   opacity: 0;
@@ -565,16 +577,14 @@ kbd {
   display: flex;
   align-items: baseline;
   gap: 3px;
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 25px;
   font-weight: 420;
-  font-variation-settings: "SOFT" 100, "WONK" 1;
   letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
 .wordmark-zero {
-  font-style: italic;
   font-weight: 300;
 }
 
@@ -594,7 +604,7 @@ kbd {
 .path-toggle button {
   padding: 2px 11px;
   border-radius: 999px;
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -632,7 +642,6 @@ kbd {
 
 .nav a[aria-current="page"] {
   opacity: 1;
-  font-style: italic;
 }
 
 .nav a[aria-current="page"]::after {
@@ -716,8 +725,7 @@ kbd {
 }
 
 .section-numeral {
-  font-family: var(--display);
-  font-style: italic;
+  font-family: var(--heading);
   font-size: 18px;
   color: var(--gold);
 }
@@ -728,7 +736,6 @@ kbd {
 }
 
 .section-note {
-  font-style: italic;
   color: var(--muted);
   font-size: 18px;
 }
@@ -889,11 +896,9 @@ kbd {
   font-weight: 250;
   line-height: 1;
   font-variant-numeric: lining-nums;
-  font-variation-settings: "SOFT" 100;
 }
 
 .ledger-label {
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -914,12 +919,11 @@ kbd {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-style: italic;
   color: var(--ink-2);
 }
 
 .hours-out {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-style: normal;
   font-size: 30px;
   font-weight: 350;
@@ -935,7 +939,6 @@ kbd {
 
 .field-note {
   color: var(--muted);
-  font-style: italic;
 }
 
 .brush-range {
@@ -994,7 +997,6 @@ kbd {
   display: flex;
   justify-content: space-between;
   font-size: 15px;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -1029,7 +1031,6 @@ kbd {
 }
 
 .byline {
-  font-style: italic;
   color: var(--muted);
   font-size: 16px;
 }
@@ -1070,7 +1071,6 @@ kbd {
   font-family: var(--display);
   font-size: 64px;
   font-weight: 200;
-  font-style: italic;
   line-height: 0.9;
   color: var(--rule-2);
   text-align: right;
@@ -1091,7 +1091,6 @@ kbd {
 }
 
 .chapter-when {
-  font-style: italic;
   color: var(--muted);
   font-size: 16px;
 }
@@ -1122,7 +1121,6 @@ kbd {
   align-items: center;
   margin-top: 6px;
   font-size: 15px;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -1130,7 +1128,6 @@ kbd {
   justify-self: start;
   margin-top: 4px;
   padding: 4px 0;
-  font-style: italic;
   color: var(--accent);
   border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
 }
@@ -1161,7 +1158,7 @@ kbd {
 
 .mini-studies a {
   flex: 1;
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 19px;
 }
 
@@ -1182,7 +1179,6 @@ kbd {
 
 .dispatches h3 {
   font-size: 23px;
-  font-style: italic;
   font-weight: 400;
   margin-bottom: 8px;
 }
@@ -1194,7 +1190,7 @@ kbd {
 .dispatches li:first-child p::first-letter {
   float: left;
   margin: 6px 10px 0 0;
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 62px;
   line-height: 0.8;
   color: var(--sienna);
@@ -1210,7 +1206,6 @@ kbd {
 .journal > p {
   max-width: 44rem;
   color: var(--muted);
-  font-style: italic;
 }
 
 /* ── Library ──────────────────────────────────────────────────────────── */
@@ -1244,7 +1239,6 @@ kbd {
   background: transparent;
   color: var(--ink);
   font-size: 21px;
-  font-style: italic;
 }
 
 .quill-search input::placeholder {
@@ -1283,26 +1277,23 @@ kbd {
 
 .contents button[aria-checked="true"] {
   color: var(--ink);
-  font-style: italic;
   border-bottom: 1px solid var(--gold);
 }
 
 .contents-num {
   display: inline-block;
   min-width: 2.2em;
-  font-family: var(--display);
-  font-style: italic;
+  font-family: var(--heading);
   color: var(--gold);
 }
 
 .contents-count {
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 15px;
 }
 
 .result-count {
   margin-top: -24px;
-  font-style: italic;
   color: var(--muted);
   font-size: 16px;
 }
@@ -1325,7 +1316,6 @@ kbd {
   font-family: var(--display);
   font-size: 46px;
   font-weight: 200;
-  font-style: italic;
   line-height: 1;
   color: var(--gold);
 }
@@ -1335,7 +1325,6 @@ kbd {
 }
 
 .shelf-head p {
-  font-style: italic;
   color: var(--muted);
   font-size: 16px;
 }
@@ -1379,11 +1368,10 @@ kbd {
 }
 
 .entry-title {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 22px;
   font-weight: 420;
   line-height: 1.25;
-  font-variation-settings: "SOFT" 100;
   transition: color 0.2s;
 }
 
@@ -1410,14 +1398,12 @@ kbd {
 }
 
 .entry-time {
-  font-style: italic;
   color: var(--muted);
   font-size: 15px;
   white-space: nowrap;
 }
 
 .entry-meta {
-  font-style: italic;
   color: var(--muted);
   font-size: 15.5px;
 }
@@ -1521,7 +1507,7 @@ kbd {
 }
 
 .caption-plate {
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1529,15 +1515,13 @@ kbd {
 }
 
 .caption-title {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 24px;
-  font-style: italic;
   font-weight: 400;
 }
 
 .caption-meta {
   font-size: 15px;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -1548,6 +1532,7 @@ kbd {
 }
 
 .notfound h1 {
+  font-family: var(--display);
   font-size: 48px;
 }
 
@@ -1561,7 +1546,6 @@ kbd {
   align-items: center;
   gap: 8px;
   justify-self: start;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -1584,7 +1568,6 @@ kbd {
 }
 
 .easel-note {
-  font-style: italic;
   color: var(--muted);
   font-size: 16px;
   text-align: center;
@@ -1597,6 +1580,7 @@ kbd {
 }
 
 .study-text h1 {
+  font-family: var(--display);
   margin-top: 10px;
   font-size: clamp(40px, 4.6vw, 60px);
   font-weight: 340;
@@ -1606,7 +1590,6 @@ kbd {
 .study-lede {
   margin-top: 16px;
   font-size: 21px;
-  font-style: italic;
   color: var(--ink-2);
 }
 
@@ -1626,7 +1609,7 @@ kbd {
 }
 
 .particulars dt {
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1663,7 +1646,6 @@ kbd {
 }
 
 .stroke-num {
-  font-style: italic;
   color: var(--gold);
   margin-right: 4px;
 }
@@ -1690,7 +1672,6 @@ kbd {
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px 4px 16px;
-  font-style: italic;
   font-size: 14px;
   color: color-mix(in srgb, var(--code-ink) 60%, transparent);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -1721,7 +1702,6 @@ kbd {
 }
 
 .marginalia p {
-  font-style: italic;
   font-size: 19px;
   color: var(--ink-2);
 }
@@ -1733,7 +1713,6 @@ kbd {
 
 .signoff p {
   color: var(--muted);
-  font-style: italic;
   margin-top: 6px;
 }
 
@@ -1770,7 +1749,6 @@ kbd {
 
 .specimen h3 {
   font-size: 25px;
-  font-style: italic;
   font-weight: 400;
 }
 
@@ -1800,7 +1778,6 @@ kbd {
 .cost-word {
   margin-left: 6px;
   font-size: 14px;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -1818,9 +1795,8 @@ kbd {
 }
 
 .ailments dt {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 24px;
-  font-style: italic;
 }
 
 .ailments dd {
@@ -1831,7 +1807,6 @@ kbd {
 
 .symptom {
   color: var(--muted);
-  font-style: italic;
 }
 
 .guide-split {
@@ -1852,7 +1827,6 @@ kbd {
   font-family: var(--display);
   font-size: 34px;
   font-weight: 200;
-  font-style: italic;
   line-height: 1;
   color: var(--gold);
 }
@@ -1886,9 +1860,8 @@ kbd {
   background-color: var(--stratum);
   background-image: var(--grain), linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.1));
   color: #fbf4e4;
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 18px;
-  font-style: italic;
   border-radius: 3px 0 0 3px;
 }
 
@@ -1927,7 +1900,6 @@ kbd {
 
 .seasons h3 {
   font-size: 26px;
-  font-style: italic;
   font-weight: 400;
 }
 
@@ -1965,15 +1937,13 @@ kbd {
 
 .commission-tabs button[aria-selected="true"] {
   color: var(--ink);
-  font-style: italic;
   border-left-color: var(--gold);
 }
 
 .tab-num {
   display: inline-block;
   min-width: 2.2em;
-  font-family: var(--display);
-  font-style: italic;
+  font-family: var(--heading);
   color: var(--gold);
 }
 
@@ -1986,7 +1956,6 @@ kbd {
 .commission h2 {
   font-size: 38px;
   font-weight: 360;
-  font-style: italic;
 }
 
 .commission-sub {
@@ -2000,7 +1969,6 @@ kbd {
 .commission-sub span {
   font-family: var(--text);
   font-size: 15px;
-  font-style: italic;
   color: var(--muted);
 }
 
@@ -2011,7 +1979,7 @@ kbd {
   align-items: center;
   padding: 14px 0;
   border-top: 1px dashed var(--rule-2);
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 19px;
   transition: color 0.2s;
 }
@@ -2049,16 +2017,14 @@ kbd {
 }
 
 .colophon-mark {
-  font-family: var(--display);
+  font-family: var(--heading);
   font-size: 22px;
-  font-style: italic;
   color: var(--ink-2);
 }
 
 .colophon-inner p:last-child {
   max-width: 40rem;
   font-size: 15px;
-  font-style: italic;
 }
 
 /* ── Command palette ──────────────────────────────────────────────────── */
@@ -2110,7 +2076,6 @@ kbd {
   background: transparent;
   color: var(--ink);
   font-size: 21px;
-  font-style: italic;
 }
 
 .palette-input input::placeholder {
@@ -2125,7 +2090,7 @@ kbd {
 
 .palette-group {
   padding: 12px 12px 4px;
-  font-family: var(--display);
+  font-family: var(--small);
   font-size: 11.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2148,7 +2113,6 @@ kbd {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-style: italic;
   font-size: 15px;
   color: var(--muted);
 }
@@ -2160,7 +2124,6 @@ kbd {
 .palette-empty {
   padding: 28px 12px;
   color: var(--muted);
-  font-style: italic;
   text-align: center;
 }
 
@@ -2180,7 +2143,6 @@ kbd {
   border-radius: 999px;
   background: var(--ink);
   color: var(--paper);
-  font-style: italic;
   box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.5);
   animation: rise 0.2s ease-out;
 }
