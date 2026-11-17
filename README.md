@@ -1,61 +1,61 @@
-# AI 0-to-Hero
+# 0→Hero
 
-A personal AI learning workbench for moving from foundations to evaluated, production-ready, sellable AI systems. The app is intentionally data-driven: roadmap phases, resources, labs, concepts, and revenue niches live in `src/data`.
+A personal learning workbench with two tracks:
 
-## What It Includes
+- **AI Engineering**: from your first API call to an evaluated, client-ready agent product.
+- **Product Management**: from PM-curious to interview-ready, with AI product craft built in.
 
-- 149 curated resources across foundations, LLM API craft, transformers, RAG, agents, MCP, orchestration, evals, safety, automation, production, and revenue.
-- A 16-week roadmap that adapts to weekly hours and goal.
-- Lab guides with prerequisites, starter commands, walkthroughs, gotchas, verification checks, and linked readings.
-- Starter templates for prompt evals, RAG eval planning, and AI-BOM handoff docs in `templates/`.
-- Progress persistence, import/export, markdown progress reports, command palette, theme toggle, and resource filtering.
-- Data validation, link checking, linting, tests, and CI.
+Each track has a paced plan, a short curated library, labs with a clear finish line, cheat sheets, and a path to paid work or a role. Content was last reviewed on **16 Nov 2026**.
 
-## Setup
+| | AI | PM |
+| --- | --- | --- |
+| Sources | 67 (19 core) | 41 (12 core) |
+| Labs | 8 | 8 |
+| Phases | 6 | 6 |
+
+## Sections
+
+- **Plan**: choose a goal and weekly hours; the phases resize to fit. Shows what to read and build next, plus what changed in 2026.
+- **Library**: search and filter by topic or status (core, unread, saved).
+- **Labs**: step checklists with code, pitfalls, required reading and a "shipped" state.
+- **Reference**: agent patterns, RAG failure modes, the eval playbook (or the PM equivalents).
+- **Offers / Career**: niches with pain, offer, pricing or compensation, and the labs that prove it.
+
+Progress is stored in the browser (`localStorage`, key `ai0.v4.<path>`). Earlier v3 progress is migrated automatically. You can export to JSON or Markdown and import it back from the Plan page or the command palette (⌘K / Ctrl K).
+
+## Develop
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Local app: `http://127.0.0.1:5173/`
-
-## Scripts
-
 ```bash
-npm run dev          # start Vite locally
-npm run build        # production build
-npm run preview      # preview built app
-npm run lint         # ESLint
-npm run test         # Vitest
-npm run check:data   # validate data graph and catalogue schema
-npm run check:links  # validate external resource links
-npm run check        # lint, test, data validation, build
-npm run verify       # full check plus external link audit
+npm run check        # lint, tests, data validation, build
+npm run check:links  # external link audit (needs open network)
 ```
 
-`check:links` treats `401`, `403`, and `429` as blocked-but-present because some documentation and publishing sites reject automated requests.
+Requires Node `^20.19.0 || >=22.12.0`.
 
-## Data Update Workflow
+## Project layout
 
-1. Add or update resources in `src/data/resources.js`.
-2. Prefer official docs, living specs, maintained repos, and benchmark leaderboards for fast-moving AI topics.
-3. Run `npm run check:data`.
-4. Run `npm run check:links`.
-5. Update lab guide links if a new resource should become required background reading.
-6. Update `resourceCatalogMeta` in `src/data/resources.js`.
-7. Run `npm run check`.
-
-## Progress Safety
-
-Browser progress and imported JSON are sanitized before use. Unknown resource IDs, invalid lab task indexes, unsafe weekly-hour values, invalid sections, unknown goals, unknown niches, and bad theme values are dropped or clamped.
-
-## Deployment
-
-The app is static and deploys cleanly to Vercel or any static host.
-
-```bash
-npm run build
+```
+src/data/ai.js, pm.js   all content for a track (meta, topics, phases, resources, labs, reference, offers)
+src/data/paths.js       registry and lookup indexes
+src/lib/                progress model, plan math, hash router, storage
+src/pages/              Plan, Library, Labs, Reference, Offers
+src/components/         header, command palette, shared UI
+templates/              prompt-eval, rag-eval and AI-BOM starters
+scripts/                data validator and link checker
 ```
 
-Commit source files, `package-lock.json`, README/docs, tests, scripts, and workflow files. Do not commit `.vercel`, `node_modules`, `dist`, or local Claude settings.
+## Updating content
+
+1. Edit `src/data/ai.js` or `src/data/pm.js`. Every resource needs a `why` (why it earns its slot) and a `todo` (what to do with it).
+2. Prefer official docs, specs and maintained repos for fast-moving topics. Keep the catalogue small; remove something for each addition.
+3. If you rename an id, add the old id to `ALIASES` in `src/lib/progress.js` so saved progress survives.
+4. Bump `reviewed` in the track's `meta`, then run `npm run check` and `npm run check:links`.
+
+## Deploy
+
+The site is static: hash routing, no server, no environment variables. Vercel detects Vite automatically (`npm run build` → `dist/`).

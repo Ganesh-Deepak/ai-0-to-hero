@@ -1,98 +1,106 @@
 import { describe, expect, it } from "vitest";
-
-import { architectureLayers } from "../data/concepts";
-import { goals } from "../data/goals";
-import { labs } from "../data/labs";
-import { phases } from "../data/phases";
-import { resources } from "../data/resources";
-import { revenueNiches } from "../data/revenue";
-import { topics } from "../data/topics";
+import { getPath } from "../data/paths";
 import {
-  DEFAULT_SELECTED_LAYERS,
   PROGRESS_VERSION,
-  createProgressPayload,
+  clampHours,
+  exportPayload,
+  migrateLegacy,
+  parseImport,
+  progressMarkdown,
   sanitizeProgress,
 } from "./progress";
 
-const context = {
-  architectureLayers,
-  goals,
-  labs,
-  phases,
-  resources,
-  revenueNiches,
-  topics,
-};
+const ai = getPath("ai");
+const pm = getPath("pm");
 
-describe("progress sanitation", () => {
-  it("removes unknown ids and clamps unsafe scalar fields", () => {
-    const sanitized = sanitizeProgress(
+describe("sanitizeProgress", () => {
+  it("returns defaults for garbage", () => {
+    for (const raw of [null, undefined, 42, "x", []]) {
+      const p = sanitizeProgress(raw, ai);
+      expect(p).toMatchObject({ done: [], saved: [], shipped: [], steps: {}, hours: 12, goal: "freelance" });
+      expect(p.niche).toBe(ai.offers.niches[0].id);
+    }
+  });
+
+  it("drops unknown ids, duplicates and out-of-range steps, and clamps hours", () => {
+    const p = sanitizeProgress(
       {
-        activePhase: "missing-phase",
-        activeTopic: "missing-topic",
-        done: ["karpathy-intro-llms", "missing-resource", "karpathy-intro-llms"],
-        goal: "missing-goal",
-        labTasks: {
-          "lab-prompt-harness": [0, 0, "2", 99, -1],
-          "missing-lab": [1],
-        },
-        labs: ["lab-rag-citations", "missing-lab"],
-        libraryHighlight: ["openai-structured", "missing-resource"],
-        saved: ["openai-cookbook", "missing-resource"],
-        section: "bad-section",
-        selectedLayersList: ["model", "bad-layer", "tools"],
-        selectedNiche: "bad-niche",
-        theme: "neon",
-        weeklyHours: 999,
+        done: ["karpathy-intro-llms", "nope", "karpathy-intro-llms", 7],
+        saved: ["mcp-spec", "missing"],
+        shipped: ["lab-rag", "lab-nope"],
+        steps: { "lab-rag": [0, "2", 2, 99, -1, 1.5], "lab-nope": [0], "lab-attention": "bad" },
+        hours: 999,
+        goal: "nope",
+        niche: "nope",
       },
-      context
+      ai
     );
-
-    expect(sanitized.activePhase).toBeNull();
-    expect(sanitized.activeTopic).toBe("all");
-    expect(sanitized.done).toEqual(["karpathy-intro-llms"]);
-    expect(sanitized.goal).toBe("freelance");
-    expect(sanitized.labTasks).toEqual({ "lab-prompt-harness": [0, 2] });
-    expect(sanitized.labs).toEqual(["lab-rag-citations"]);
-    expect(sanitized.libraryHighlight).toEqual(["openai-structured"]);
-    expect(sanitized.saved).toEqual(["openai-cookbook"]);
-    expect(sanitized.section).toBe("dashboard");
-    expect(sanitized.selectedLayersList).toEqual(["model", "tools"]);
-    expect(sanitized.selectedNiche).toBe("local-services");
-    expect(sanitized.theme).toBe("dark");
-    expect(sanitized.weeklyHours).toBe(30);
+    expect(p.done).toEqual(["karpathy-intro-llms"]);
+    expect(p.saved).toEqual(["mcp-spec"]);
+    expect(p.shipped).toEqual(["lab-rag"]);
+    expect(p.steps).toEqual({ "lab-rag": [0, 2] });
+    expect(p.hours).toBe(30);
+    expect(p.goal).toBe("freelance");
   });
 
-  it("falls back to default layers when every imported layer is invalid", () => {
-    const sanitized = sanitizeProgress(
-      { selectedLayersList: ["bad-layer"] },
-      context
-    );
+  it("clamps hours into range and handles non-numbers", () => {
+    expect(clampHours(1)).toBe(4);
+    expect(clampHours("10.6")).toBe(11);
+    expect(clampHours("abc", 9)).toBe(9);
+  });
+});
 
-    expect(sanitized.selectedLayersList).toEqual(DEFAULT_SELECTED_LAYERS);
+describe("legacy migration", () => {
+  it("maps v3 keys and renamed ids", () => {
+    const store = {
+      "ai0.ai.doneResources": ["anthropic-contextual", "karpathy-intro-llms", "deleted-resource"],
+      "ai0.ai.savedResources": ["anthropic-building-agents"],
+      "ai0.ai.doneLabs": ["lab-rag-citations"],
+      "ai0.ai.hours": 20,
+      "ai0.ai.goal": "job",
+    };
+    const raw = migrateLegacy("ai", (k) => store[k] ?? null);
+    const p = sanitizeProgress(raw, ai);
+    expect(p.done).toEqual(["contextual-retrieval", "karpathy-intro-llms"]);
+    expect(p.saved).toEqual(["building-effective-agents"]);
+    expect(p.shipped).toEqual(["lab-rag"]);
+    expect(p.hours).toBe(20);
+    expect(p.goal).toBe("job");
   });
 
-  it("exports a versioned payload with browser-state sets converted to arrays", () => {
-    const payload = createProgressPayload({
-      activePhase: "foundation",
-      activeTopic: "llm",
-      doneLabs: new Set(["lab-prompt-harness"]),
-      doneResources: new Set(["openai-structured"]),
-      goal: "job",
-      labTasks: { "lab-prompt-harness": [0] },
-      libraryHighlight: ["openai-structured"],
-      savedResources: new Set(["openai-cookbook"]),
-      section: "library",
-      selectedLayersList: ["model"],
-      selectedNiche: "support",
-      theme: "light",
-      weeklyHours: 10,
-    });
+  it("returns null when there is nothing to migrate", () => {
+    expect(migrateLegacy("pm", () => null)).toBeNull();
+  });
+});
 
+describe("import / export", () => {
+  it("round-trips a v4 export", () => {
+    const progress = sanitizeProgress({ done: ["mom-test"], shipped: ["pm-lab-prd"], hours: 8, goal: "ai" }, pm);
+    const payload = JSON.parse(JSON.stringify(exportPayload(progress, "pm")));
     expect(payload.version).toBe(PROGRESS_VERSION);
-    expect(payload.done).toEqual(["openai-structured"]);
-    expect(payload.saved).toEqual(["openai-cookbook"]);
-    expect(payload.labs).toEqual(["lab-prompt-harness"]);
-    expect(payload.exportedAt).toEqual(expect.any(String));
+    expect(payload.pathId).toBe("pm");
+    expect(parseImport(payload, pm)).toEqual(progress);
+  });
+
+  it("accepts a v3 export", () => {
+    const p = parseImport(
+      { version: 3, done: ["intercom-rice"], labs: ["pm-lab-real-prd"], weeklyHours: 6, selectedNiche: "apm-faang" },
+      pm
+    );
+    expect(p.done).toEqual(["rice"]);
+    expect(p.shipped).toEqual(["pm-lab-prd"]);
+    expect(p.hours).toBe(6);
+    expect(p.niche).toBe("apm");
+  });
+
+  it("rejects non-objects", () => {
+    expect(parseImport("nope", ai)).toBeNull();
+  });
+
+  it("writes a markdown report", () => {
+    const md = progressMarkdown(sanitizeProgress({ done: ["mcp-spec"], shipped: ["lab-rag"] }, ai), ai);
+    expect(md).toContain("# AI Engineering — progress");
+    expect(md).toContain("- [x] Cited RAG assistant — shipped");
+    expect(md).toContain("[MCP specification 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28)");
   });
 });
